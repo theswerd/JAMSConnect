@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class Constants {
   static Color baseColor = Color(0xFF2D72AF);
@@ -11,5 +12,6 @@ class Constants {
         fullscreenDialog: true
       )
     );
-  } 
+  }
+  static CupertinoActionSheetAction cancelAction(BuildContext context)=>CupertinoActionSheetAction(child: Text("Cancel"),onPressed: ()=>Navigator.of(context).pop(),);
 }
