@@ -21,22 +21,21 @@ class StaffDirectory extends StatefulWidget {
 class _StaffDirectoryState extends State<StaffDirectory> {
   Widget titleWidget = Text("Staff Directory");
   bool loaded = false;
-  IconButton searchButton;
+  Widget searchButton = Padding(child: CupertinoActivityIndicator(), padding: EdgeInsets.only(right: 8),);
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   Widget loadingBody = Center(child: ColorLoader3(),);
   Widget body;
   List teachers = [];
   bool searching = false;
+  String today = DateTime.now().year.toString()+"-"+DateTime.now().month.toString()+DateTime.now().day.toString();
+  LocalStorage theStorage = LocalStorage("staff");
   @override
   void initState() {
     super.initState();
     body = loadingBody; 
-    searchButton = IconButton(
-      icon: Icon(Icons.search),
-        onPressed: ()=>null,
-      );
     
-        getTeachers();
+    checkStorage(theStorage);
+    
   }
       @override
       Widget build(BuildContext context) {
@@ -47,7 +46,7 @@ class _StaffDirectoryState extends State<StaffDirectory> {
             actions: <Widget>[
               searchButton
             ],
-            title: titleWidget,
+            title: AnimatedSwitcher(child:titleWidget, duration: Duration(milliseconds: 200),),
           ),
         );
       }
@@ -70,10 +69,8 @@ class _StaffDirectoryState extends State<StaffDirectory> {
                   setState(() {
                     body = loadingBody;
                     getTeachers();
-                    searchButton = IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: ()=>print("FISHHH"),
-                    );
+                    print("SEARCH LOADEDD");
+                    
                   });
                 },
               ),
@@ -130,8 +127,60 @@ class _StaffDirectoryState extends State<StaffDirectory> {
         }
         setState(() {
           teachers = format2;
+          theStorage.setItem(today, teachers);
           body = bodyListBuilder(teachers);
           loaded = true;
+          searchButton = IconButton(
+            icon: Icon(Icons.search),
+            onPressed: (){
+              
+              if(searching){
+                
+                setState(() {
+                  titleWidget = Text("Staff Directory");
+                });
+                searching = false;
+              }else{
+                setState(() {
+                  titleWidget = Padding(
+                    padding: const EdgeInsets.only(bottom:10.0, top: 4.0),
+                    child: TextField(
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelStyle: TextStyle(color: Colors.white),
+                        labelText: "Search",
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.white)
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+
+                        ),
+                        
+                      ),
+                    onChanged: (search){
+                      setState(() {
+                        List searchedTeachers = [];
+                        for (Map teacher in teachers) {
+                          //Checks if search contains the name, department, or room
+                          if(teacher['name'].toString().toUpperCase().contains(search.toUpperCase())||teacher['dep'].toString().toUpperCase().contains(search.toUpperCase())||teacher['room'].toString().toUpperCase().contains(search.toUpperCase())){
+                            searchedTeachers.add(teacher);
+                          }
+                        }
+                        body = bodyListBuilder(searchedTeachers);
+                      });
+                    },
+                    ),
+
+                  );
+                });
+                searching = true;
+
+              }
+              Vibrate.feedback(FeedbackType.light);
+            }
+          );
         });
         print(format2);
       }
@@ -216,5 +265,77 @@ class _StaffDirectoryState extends State<StaffDirectory> {
         ),
       );},
     );
+  }
+
+  void checkStorage(LocalStorage theStorage) async{
+    bool ready;
+    ready = await theStorage.ready;
+    if(ready){
+      if(theStorage.getItem(today)==null){
+        getTeachers();
+      }else{
+        teachers = theStorage.getItem(today);
+        theStorage.clear();
+        theStorage.setItem(today, teachers);
+        setState(() {
+          body = bodyListBuilder(teachers);
+          loaded = true;
+          searchButton = IconButton(
+            icon: Icon(Icons.search),
+            onPressed: (){
+              
+              if(searching){
+                
+                setState(() {
+                  titleWidget = Text("Staff Directory");
+                });
+                searching = false;
+              }else{
+                setState(() {
+                  titleWidget = Padding(
+                    padding: const EdgeInsets.only(bottom:10.0, top: 4.0),
+                    child: TextField(
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelStyle: TextStyle(color: Colors.white),
+                        labelText: "Search",
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide(color: Colors.white)
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+
+                        ),
+                        
+                      ),
+                    onChanged: (search){
+                      setState(() {
+                        List searchedTeachers = [];
+                        for (Map teacher in teachers) {
+                          //Checks if search contains the name, department, or room
+                          if(teacher['name'].toString().toUpperCase().contains(search.toUpperCase())||teacher['dep'].toString().toUpperCase().contains(search.toUpperCase())||teacher['room'].toString().toUpperCase().contains(search.toUpperCase())){
+                            searchedTeachers.add(teacher);
+                          }
+                        }
+                        body = bodyListBuilder(searchedTeachers);
+                      });
+                    },
+                    ),
+
+                  );
+                });
+                searching = true;
+
+              }
+              Vibrate.feedback(FeedbackType.light);
+            }
+          );
+        });
+          
+      }
+    }else{
+      getTeachers();
+    }
   }
 }
