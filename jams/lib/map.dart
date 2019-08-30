@@ -12,6 +12,7 @@ class _MapState extends State<Map> {
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
+      myLocationEnabled: true,
       myLocationButtonEnabled: true,
       mapType: MapType.hybrid,
       markers: {

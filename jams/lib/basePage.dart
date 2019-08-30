@@ -1,8 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:jams/Checklist.dart';
 import 'package:jams/calender.dart';
+import 'package:jams/color_loader_3.dart';
 import 'package:jams/constants.dart';
+import 'package:jams/schedule.dart';
 import 'package:jams/teachers.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'map.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -44,6 +49,66 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
               subtitle: Text("Find your teachers"),
               trailing: Icon(MdiIcons.teach, color: Colors.black,),
               onTap: ()=>Constants.popupRoute(StaffDirectory(),context),
+            ),
+            ListTile(
+              title: Text("Illuminate"),
+              subtitle: Text("Gradebook"),
+              trailing: Icon(MdiIcons.bookOpenVariant, color: Colors.black,),
+              onTap: ()=>Navigator.of(context).push(
+                MaterialPageRoute(
+                  fullscreenDialog:true,
+                  maintainState:true,
+                  builder:(c)=>WebviewScaffold(
+                    url: "https://smmusd.illuminatehc.com/login",
+                    appBar: AppBar(
+                      title: Text("Illuminate"),
+                      actions: <Widget>[
+                        IconButton(
+                          icon: Icon(MdiIcons.launch),
+                          onPressed: ()=>launch('https://smmusd.illuminatehc.com/login'),
+                        )
+                      ],
+                    ),
+                  )
+                )
+              )
+            ),
+            ListTile(
+              title: Text("Daily Bulletin"),
+              subtitle: Text("Today's News"),
+              trailing: Icon(MdiIcons.bulletinBoard, color: Colors.black,),
+              onTap: ()=>Navigator.of(context).push(
+                MaterialPageRoute(
+                  fullscreenDialog:true,
+                  maintainState:true,
+                  builder:(c)=>WebviewScaffold(
+                    allowFileURLs: true,
+                    withJavascript: true,
+                    appCacheEnabled: true,
+                    userAgent: "JAMS Connect",
+                    initialChild: Center(child: ColorLoader3()),
+                    url: "http://www.adams.smmusd.org/JAMSBulletin.pdf",
+                    appBar: AppBar(
+                      title: Text("Daily Bulletin"),
+                      actions: <Widget>[
+                        IconButton(icon: Icon(MdiIcons.launch),onPressed: ()=>launch("http://www.adams.smmusd.org/JAMSBulletin.pdf"),)
+                      ],
+                    ),
+                  )
+                )
+              ),
+            ),
+            ListTile(
+              title: Text("Schedule"),
+              subtitle: Text("JAMS Bell Schedule"),
+              trailing: Icon(MdiIcons.clockOutline, color: Colors.black),
+              onTap: ()=>Navigator.of(context).push(
+                MaterialPageRoute(
+                  fullscreenDialog:true,
+                  maintainState:true,
+                  builder:(c)=>Schedule()
+                )
+              ),
             )
           ],
         ),
@@ -51,6 +116,105 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
       appBar: AppBar(
         leading: IconButton(icon: Icon(MdiIcons.menu),onPressed: ()=>_scaffoldkey.currentState.openDrawer(),),
         title: Text("John Adams Middle School"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(MdiIcons.informationOutline),
+            onPressed: (){
+              if(baseTabController.index==0){
+                print("Map");
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (c)=>CupertinoActionSheet(
+                    cancelButton: Constants.cancelAction(context),
+                    actions: <Widget>[
+                      CupertinoActionSheetAction(
+                        child: Text("Official Website"),
+                        onPressed: ()=>launch("http://www.adams.smmusd.org/admin/campusmap.html"),
+                      ),
+                      CupertinoActionSheetAction(
+                        child: Text("Extra Info"),
+                        onPressed: ()=>showCupertinoModalPopup(
+                          context: context,
+                          builder: (c)=>CupertinoAlertDialog(
+                            title: Text("Extra Info"),
+                            content: Text("The map data is taken from the official JAMS Map."),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                child: Text("Ok"),
+                                onPressed: ()=>Navigator.of(context).pop(),
+                              )
+                            ],
+                          )
+                        ),
+                      )
+                    ],
+                  )
+                );
+              }else if(baseTabController.index==1){
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (c)=>CupertinoActionSheet(
+                    cancelButton: Constants.cancelAction(context),
+                    actions: <Widget>[
+                      CupertinoActionSheetAction(
+                        child: Text("Official Website"),
+                        onPressed: ()=>launch("http://www.adams.smmusd.org/calendar.html"),
+                      ),
+                      CupertinoActionSheetAction(
+                        child: Text("SMMUSD Calendar"),
+                        onPressed: ()=>launch("http://www.smmusd.org/calendar/cal1920.pdf"),
+                      ),
+                      CupertinoActionSheetAction(
+                        child: Text("Extra Info"),
+                        onPressed: ()=>showCupertinoModalPopup(
+                          context: context,
+                          builder: (c)=>CupertinoAlertDialog(
+                            title: Text("Extra Info"),
+                            content: Text("The Calendar data is taken live from the official JAMS Calendar."),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                child: Text("Ok"),
+                                onPressed: ()=>Navigator.of(context).pop(),
+                              )
+                            ],
+                          )
+                        ),
+                      )
+                    ],
+                  )
+                );
+
+              }else{
+                showCupertinoModalPopup(
+                  context: context,
+                  builder: (c)=>CupertinoActionSheet(
+                    cancelButton: Constants.cancelAction(context),
+                    actions: <Widget>[
+                      
+                      CupertinoActionSheetAction(
+                        child: Text("Extra Info"),
+                        onPressed: ()=>showCupertinoModalPopup(
+                          context: context,
+                          builder: (c)=>CupertinoAlertDialog(
+                            title: Text("Extra Info"),
+                            content: Text("The Checklist is stored locally on your device. It is here for your school work, to help you keep up with your homework."),
+                            actions: <Widget>[
+                              CupertinoDialogAction(
+                                child: Text("Ok"),
+                                onPressed: ()=>Navigator.of(context).pop(),
+                              )
+                            ],
+                          )
+                        ),
+                      )
+                    ],
+                  )
+                );
+
+              }
+            },
+          )
+        ],
       ),
       body: TabBarView(
         physics: NeverScrollableScrollPhysics(),

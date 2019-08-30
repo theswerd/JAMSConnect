@@ -189,10 +189,11 @@ class _StaffDirectoryState extends State<StaffDirectory> {
     return ListView.separated(
       itemCount: teachers.length,
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-      separatorBuilder: (c,i)=>Container(height: 15),
+      separatorBuilder: (c,i)=>Container(height: 25),
       itemBuilder: (c,i){
         Map teacher = teachers[i];
         return RaisedButton(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         padding: EdgeInsets.all(15),
         elevation: 15,
         onPressed: (){},
