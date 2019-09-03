@@ -29,7 +29,7 @@ class _CalendarState extends State<Calendar> with TickerProviderStateMixin {
   void initState() {
     Widget networkCalendar =  StreamBuilder(
        //stream:http.get("https://calendar.google.com/calendar/htmlembed?mode=AGENDA&src=smmk12.org_21bhbi3q00vuvdf2rak3rrrll8%40group.calendar.google.com").asStream(),
-       stream:http.get("https://calendar.google.com/calendar/htmlembed?mode=AGENDA&wkst=1&bgcolor=%23ffffff&ctz=America%2FLos_Angeles&src=OHRuMW9ucXZrdXA2ZzI4MXExOXM2b29uM3NAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&src=c3RiM3JlZmRqYjhtYTdkajJ1OGFyNGh1ZXNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&src=dGxrdjhmaG0xaHBhYjYzM3NldGNvbHRmamdAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ&color=%23F09300&color=%233F51B5&color=%23D50000&title=Malibu%20HS").asStream(),
+       stream:http.get("https://calendar.google.com/calendar/htmlembed?mode=AGENDA&wkst=1&bgcolor=%23FFFFFF&src=8tn1onqvkup6g281q19s6oon3s@group.calendar.google.com&color=%238C500B&src=hgl0deb1htv9a427f128o9adb8@group.calendar.google.com&color=%23182C57&src=tlkv8fhm1hpab633setcoltfjg@group.calendar.google.com&color=%23711616&ctz=America/Los_Angeles&pli=1").asStream(),
        builder: (c,s){
          if(s.hasError){
            return Center(child:

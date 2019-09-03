@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -7,6 +9,7 @@ import 'package:jams/color_loader_3.dart';
 import 'package:jams/constants.dart';
 import 'package:jams/schedule.dart';
 import 'package:jams/teachers.dart';
+import 'package:localstorage/localstorage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'map.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -23,6 +26,10 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     baseTabController = new TabController(vsync: this, length: 3);
+    if(DateTime.now().weekday<=5){
+      checkDailyBulletin(context);
+    }
+    
   }
   @override
   Widget build(BuildContext context) {
@@ -60,6 +67,7 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
                   maintainState:true,
                   builder:(c)=>WebviewScaffold(
                     url: "https://smmusd.illuminatehc.com/login",
+                    
                     appBar: AppBar(
                       title: Text("Illuminate"),
                       actions: <Widget>[
@@ -78,25 +86,8 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
               subtitle: Text("Today's News"),
               trailing: Icon(MdiIcons.bulletinBoard, color: Colors.black,),
               onTap: ()=>Navigator.of(context).push(
-                MaterialPageRoute(
-                  fullscreenDialog:true,
-                  maintainState:true,
-                  builder:(c)=>WebviewScaffold(
-                    allowFileURLs: true,
-                    withJavascript: true,
-                    appCacheEnabled: true,
-                    userAgent: "JAMS Connect",
-                    initialChild: Center(child: ColorLoader3()),
-                    url: "http://www.adams.smmusd.org/JAMSBulletin.pdf",
-                    appBar: AppBar(
-                      title: Text("Daily Bulletin"),
-                      actions: <Widget>[
-                        IconButton(icon: Icon(MdiIcons.launch),onPressed: ()=>launch("http://www.adams.smmusd.org/JAMSBulletin.pdf"),)
-                      ],
-                    ),
-                  )
+                  Constants.websitePage("http://www.adams.smmusd.org/JAMSBulletin.pdf", "Bulletin")
                 )
-              ),
             ),
             ListTile(
               title: Text("Schedule"),
@@ -106,6 +97,7 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
                 MaterialPageRoute(
                   fullscreenDialog:true,
                   maintainState:true,
+                  
                   builder:(c)=>Schedule()
                 )
               ),
@@ -243,5 +235,48 @@ class _BasePageState extends State<BasePage> with TickerProviderStateMixin{
       ),
       
     );
+  }
+}
+
+void checkDailyBulletin(BuildContext context) async{
+  LocalStorage bulletinToday = new LocalStorage("bulletin");
+  bool ready = await bulletinToday.ready;
+  if(ready){
+    String currentDay = DateTime.now().year.toString()+"-"+DateTime.now().month.toString()+"-"+DateTime.now().day.toString();
+    bool hasShownToday = bulletinToday.getItem(currentDay);
+    if(hasShownToday==true /*It can be null*/){
+      return;
+    }else{
+      bulletinToday.clear();
+      bulletinToday.setItem(currentDay, true);
+      showCupertinoModalPopup(
+        context: context,
+        builder: (c)=>CupertinoAlertDialog(
+          title: Text("Daily Bulletin"),
+          content: Text("Would you like to see today's daily bulletin?"),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text("No"),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text("Yes"),
+              onPressed: (){
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  Constants.websitePage("http://www.adams.smmusd.org/JAMSBulletin.pdf", "Bulletin")
+                );
+                
+              },
+            )
+          ],
+        )
+      );
+    }
+  }else{
+    bulletinToday.clear();
+    return;
   }
 }

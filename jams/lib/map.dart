@@ -10,7 +10,14 @@ class Map extends StatefulWidget {
 
 class _MapState extends State<Map> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    
+  }
+  @override
   Widget build(BuildContext context) {
+    
     return GoogleMap(
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
